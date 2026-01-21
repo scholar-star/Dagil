@@ -3,6 +3,9 @@ package busan_dining.dagil.entities;
 import jakarta.persistence.*;
 import org.springframework.context.annotation.Primary;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class Users {
     @Id
@@ -14,4 +17,7 @@ public class Users {
 
     @Column(nullable = false)
     public String password;
+
+    @OneToMany(cascade = CascadeType.REMOVE)
+    List<User_Role> user_roles = new ArrayList<User_Role>();
 }
