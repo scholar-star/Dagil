@@ -1,7 +1,6 @@
 package busan_dining.dagil.entities;
 
 import jakarta.persistence.*;
-import org.springframework.context.annotation.Primary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,5 +18,5 @@ public class Users {
     public String password;
 
     @OneToMany(cascade = CascadeType.REMOVE)
-    List<User_Role> user_roles = new ArrayList<User_Role>();
+    List<UserRole> user_roles = new ArrayList<UserRole>();
 }
