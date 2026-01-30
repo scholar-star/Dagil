@@ -1,15 +1,13 @@
 package busan_dining.dagil.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,14 +20,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     public void doFilterInternal(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws ServletException, IOException {
-        String jwtToken = parseToken(req);
-        if (jwtToken != null) {
-            if (jwtUtil.validateToken(jwtToken)) {
-                Jws<Claims> claims = jwtUtil.extractClaims(jwtToken);
-                if (claims != null) {
-                    String loginID = claims.getBody().getSubject();
-                    Authentication authentication =
+        String accessToken = parseToken(req);
+        if (accessToken != null) {
+            if (jwtUtil.validateToken(accessToken)) {
+                if (jwtUtil.expireJwtToken(accessToken)) {
+                    Authentication authentication = jwtUtil.createAuthentication(accessToken);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    // Token 만료 시 -> RefreshToken 비교, 재발급
+                    String refreshToken = null;
+                    Cookie[] cookies = req.getCookies(); // 쿠키에서 RefreshToken
+                    if (cookies != null) {
+                        for (Cookie cookie : cookies) {
+                            if (cookie.getName().equals("refresh_token")) {
+                                refreshToken = cookie.getValue();
+                            }
+                        }
+                    }
+                    // refreshToken 유효성 확인
+                    if (jwtUtil.validateRefreshToken(refreshToken)) {
+                        String loginID = jwtUtil.extractClaims(accessToken).getPayload().getSubject();
+                        String newToken = jwtUtil.generateAccessToken(loginID);
+                        Authentication authentication = jwtUtil.createAuthentication(newToken);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             }
         }

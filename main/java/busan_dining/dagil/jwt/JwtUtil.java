@@ -1,7 +1,6 @@
 package busan_dining.dagil.jwt;
 
 import busan_dining.dagil.dto.TokenDTO;
-import busan_dining.dagil.entities.CustomUserDetails;
 import busan_dining.dagil.entities.RefreshTokens;
 import busan_dining.dagil.entities.Users;
 import busan_dining.dagil.repositories.RefreshTokensRepository;
@@ -10,6 +9,7 @@ import busan_dining.dagil.repositories.UsersRepository;
 import busan_dining.dagil.services.CustomUserDetailService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +26,6 @@ public class JwtUtil {
     private final CustomUserDetailService customUserDetailService;
     private final RefreshTokensRepository refreshTokensRepository;
     private final UsersRepository usersRepository;
-    private final UserInfoRepository userInfoRepository;
     private final SecretKey secretKey;
 
     public JwtUtil(@Value("${jwt.secret}") String secretKey,
@@ -37,7 +36,6 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.refreshTokensRepository = refreshTokensRepository;
         this.usersRepository = usersRepository;
-        this.userInfoRepository = userInfoRepository;
         this.customUserDetailService = customUserDetailService;
     }
 
@@ -57,11 +55,21 @@ public class JwtUtil {
                 .compact();
 
         Users user = usersRepository.findByLoginID(loginID);
-        RefreshTokenSave(refreshToken, user);
+        RefreshTokenSave(refreshToken, user); // RefreshToken DB에 저장
         return TokenDTO.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    public String generateAccessToken(String loginID) {
+        String accessToken = Jwts.builder()
+                .subject(loginID)
+                .issuedAt(new Date()) // 발행 시간
+                .expiration(new Date(System.currentTimeMillis() + 1000*60*30)) // 만료 시간 : 발행 시간 + 30분
+                .signWith(secretKey)
+                .compact();
+        return accessToken;
     }
 
     private void RefreshTokenSave(String refreshToken, Users user) {
@@ -77,22 +85,38 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
     }
 
+    public boolean expireJwtToken(String token) {
+        Jws<Claims> claims = extractClaims(token);
+        Date expiration = claims.getPayload().getExpiration();
+        if (expiration.before(new Date())) {
+            return false;
+        }
+        return true;
+    }
+
     public boolean validateToken(String token) {
         if (token == null || token.isEmpty()) {
             return false;
         } else {
             try {
-                Jws<Claims> claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
-                if (claims.getPayload().getExpiration().before(new Date())) return false;
-                return true;
-            }
-            catch (Exception e) {
-                return false;
+                Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+                return true; // Token 자체 서명 유효 시
+            } catch (JwtException je) {
+                return false; // Token 자체 서명이 유효하지 않을 경우.
             }
         }
     }
 
-    private Authentication createAuthentication(String token) {
+    public boolean validateRefreshToken(String refreshToken) {
+        // DB에서 꺼내 refreshToken 확인
+        String existRefreshToken = refreshTokensRepository.findByRefreshToken(refreshToken).getRefreshToken();
+        if (refreshToken.equals(existRefreshToken)) {
+            return true;
+        }
+        return false;
+    }
+
+    public Authentication createAuthentication(String token) {
         // Claim 추출 후, Authentication에 넣을 UserDetails 생성
         Jws<Claims> jwtClaims = extractClaims(token);
         Claims claims = jwtClaims.getBody();
@@ -102,5 +126,11 @@ public class JwtUtil {
         UserDetails userDetails = customUserDetailService.loadUserByUsername(loginID);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         return authentication;
+    }
+
+    public void removeRefreshToken(Users user) {
+        // refreshToken DB에서 삭제(로그아웃 시)
+        RefreshTokens refreshTokens = refreshTokensRepository.findByUsers(user);
+        refreshTokensRepository.delete(refreshTokens);
     }
 }

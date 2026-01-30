@@ -16,10 +16,10 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public String getUsername() {
-        return user.loginID;
+        return user.getLoginID();
     }
 
     public String getPassword() {
-        return user.password;
+        return user.getPassword();
     }
 }

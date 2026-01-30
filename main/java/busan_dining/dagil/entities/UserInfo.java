@@ -1,23 +1,30 @@
 package busan_dining.dagil.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long info_id;
 
-    @Column(nullable = false)
-    private Long user_id;
+    @OneToOne
+    @JoinColumn(name="user_id")
+    private Users user_id;
 
-    public Boolean foreigner;
-
-    @Column(nullable = false)
-    public String email;
-
-    public String imageURL;
+    private Boolean foreigner;
 
     @Column(nullable = false)
-    public String nickname;
+    private String email;
+
+    private String imageURL;
+
+    @Column(nullable = false)
+    private String nickname;
 }

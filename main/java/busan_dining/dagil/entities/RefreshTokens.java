@@ -26,4 +26,8 @@ public class RefreshTokens {
 
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
 }
