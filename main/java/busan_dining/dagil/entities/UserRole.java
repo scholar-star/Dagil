@@ -16,13 +16,15 @@ public class UserRole {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long user_role_id;
 
-    @ManyToOne
+    @ManyToOne // UserInfo에서 여러 사용자 사용 가능
     @JoinColumn(name = "user_id")
-    private Users user_id;
+    private Users user;
 
-    private List<Role> role;
+    @ManyToOne // UserInfo에서 여러 Role 사용 가능
+    @JoinColumn(name = "role_id")
+    private Role role;
 
-    public List<Role> getRoles() {
+    public Role getRole() {
         return role;
     }
 }

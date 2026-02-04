@@ -17,8 +17,8 @@ public class RefreshTokens {
     @GeneratedValue(strategy = GenerationType.UUID) // UUID 자동 사용
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "users_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
     @Column(unique = true)

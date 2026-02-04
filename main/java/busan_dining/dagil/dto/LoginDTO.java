@@ -1,6 +1,8 @@
 package busan_dining.dagil.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record LoginDTO(
-    String loginID,
-    String password
+    @NotBlank String loginID,
+    @NotBlank String password
 ) {}

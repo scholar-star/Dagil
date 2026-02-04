@@ -25,13 +25,12 @@ public class CustomUserDetailService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Users finduser = usersRepository.findByLoginID(username);
 
-        UserRole roleMapping = userRoleRepository.findByUser(finduser);
-        List<Role> roles = roleMapping.getRoles();
+        List<UserRole> roleMapping = userRoleRepository.findByUser(finduser);
 
         // UserDetails 구현체에 getAuthorities가 들어가기 때문에, Role들을 Authorities로 변환
         List<GrantedAuthority> authorities = new ArrayList<>();
-        for (Role role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.getRole()));
+        for (UserRole userRole : roleMapping) {
+            authorities.add(new SimpleGrantedAuthority(userRole.getRole().getRole()));
         }
 
         UserDetails userDetail = new CustomUserDetails(finduser, authorities);

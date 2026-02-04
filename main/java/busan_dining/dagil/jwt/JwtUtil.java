@@ -130,7 +130,7 @@ public class JwtUtil {
 
     public void removeRefreshToken(Users user) {
         // refreshToken DB에서 삭제(로그아웃 시)
-        RefreshTokens refreshTokens = refreshTokensRepository.findByUsers(user);
+        RefreshTokens refreshTokens = refreshTokensRepository.findByUser(user);
         refreshTokensRepository.delete(refreshTokens);
     }
 }

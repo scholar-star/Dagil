@@ -30,9 +30,10 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     public ResponseEntity<?> signUp(SignupDTO signupDTO) {
+        String encryptedPassword = passwordEncoder.encode(signupDTO.password());
         Users user = Users.builder()
                 .loginID(signupDTO.loginID())
-                .password(signupDTO.password())
+                .password(encryptedPassword)
                 .build();
         usersRepository.save(user);
 
@@ -44,15 +45,13 @@ public class AuthService {
                 .build();
 
         userInfoRepository.save(userInfo);
-        Role newUserRole = roleRepository.findByID(2L); // ROLE_USER
-        List<Role> initRole = new ArrayList<>();
-        initRole.add(newUserRole);
+        Role newUserRole = roleRepository.findByid(2L); // ROLE_USER
         UserRole userRole = UserRole.builder()
-                .user_id(user)
-                .role(initRole)
+                .user(user)
+                .role(newUserRole)
                 .build();
 
-        return new ResponseEntity<String>("로그인 완료", HttpStatus.OK);
+        return new ResponseEntity<String>("회원가입 완료", HttpStatus.OK);
     }
 
     public ResponseEntity<?> login(LoginDTO loginDTO) {
