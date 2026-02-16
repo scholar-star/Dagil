@@ -1,8 +1,14 @@
 package busan_dining.dagil.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Posts {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
