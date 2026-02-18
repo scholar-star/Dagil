@@ -1,6 +1,7 @@
 package busan_dining.dagil.controllers;
 
 import busan_dining.dagil.dto.PostDTO;
+import busan_dining.dagil.dto.PostResponseDTO;
 import busan_dining.dagil.dto.RestaurantDTO;
 import busan_dining.dagil.services.PostService;
 import busan_dining.dagil.services.SearchService;
@@ -29,5 +30,10 @@ public class PostController {
     throws IOException, InterruptedException {
         List<RestaurantDTO> restaurants = searchService.searchRestaurants(keyword);
         return new ResponseEntity<>(restaurants, HttpStatus.OK);
+    }
+
+    @GetMapping("/show/{postID}")
+    public ResponseEntity<PostResponseDTO> showPost(@PathVariable long postID) {
+
     }
 }

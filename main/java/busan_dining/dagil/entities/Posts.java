@@ -18,7 +18,13 @@ public class Posts {
     @JoinColumn(name = "users_id")
     private Users user;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "restaurants_id")
     private Restaurants restaurant;
+
+    private String description;
+
+    public Restaurants getRestaurant() {
+        return restaurant;
+    }
 }

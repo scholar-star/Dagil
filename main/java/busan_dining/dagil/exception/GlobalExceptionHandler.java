@@ -22,4 +22,9 @@ public class GlobalExceptionHandler {
     public String InterruptedExceptionHandler(InterruptedException ie) {
         return "<UNK> <UNK> <UNK> <UNK>";
     }
+
+    @ExceptionHandler(NonePostException.class)
+    public String NonePostExceptionHandler(NonePostException npe) {
+        return npe.getMessage();
+    }
 }

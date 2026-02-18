@@ -88,7 +88,7 @@ public class SearchService {
     throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient(); // 요청을 보낼 Client 생성
 
-        String totalURL = searchURL+"?query="+keyword;
+        String totalURL = searchURL+"?query=부산"+keyword;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(searchURL)) // 요청 URL
                 .header("X-Naver-Client-Id", apiID)

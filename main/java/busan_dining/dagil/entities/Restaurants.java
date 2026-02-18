@@ -23,4 +23,12 @@ public class Restaurants {
     @ManyToOne
     @JoinColumn(name = "landmarks_id")
     private Landmarks landmark;
+
+    public String getName() {
+        return name;
+    }
+
+    public Landmarks getLandmarks() {
+        return landmark;
+    }
 }

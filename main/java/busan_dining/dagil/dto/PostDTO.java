@@ -9,8 +9,8 @@ public record PostDTO (
         @NotBlank Long userId,
         @NotBlank Long restaurantId,
         List<Long> categories,
-        String review,
         Integer stars,
         List<String> menus,
+        String description,
         Integer price
 ) {}

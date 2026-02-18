@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,11 +16,10 @@ public class PostsReview {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
+    @ManyToOne // 1개의 Post에 다수 리뷰
     @JoinColumn(name = "posts_id")
     private Posts posts;
 
-    private String review;
-
-    private Integer stars;
+    @OneToMany
+    private List<Reviews> reviews;
 }
